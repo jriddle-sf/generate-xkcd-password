@@ -4,19 +4,28 @@ import crypt
 import os
 import json
 
-# To Do: Use the xkcdpass library versus calling it from the command line.
-xkcd_command = "xkcdpass --delimiter '-' --numwords '6' --case 'first'"
+def __generatePassword():
+    xkcd_command = "xkcdpass --delimiter '-' --numwords '6' --case 'first'"
+    stream = os.popen(xkcd_command)
+    password_string = stream.read()
+    password_string = password_string.rstrip()
+    return password_string
 
-stream = os.popen(xkcd_command)
-output = stream.read()
+def __generateHashWithSalt(password_string):
+    hash_with_salt = crypt.crypt(password_string, crypt.mksalt(crypt.METHOD_SHA512))
+    return hash_with_salt
 
-new_password = output.rstrip()
-new_hash = crypt.crypt(new_password, crypt.mksalt(crypt.METHOD_SHA512))
+def __serializeSecrets(password_string, hash_with_salt):
+    secrets = {}
+    secrets['password'] = password_string
+    secrets['hash'] = hash_with_salt
+    serialized_secrets = json.dumps(secrets)
+    return serialized_secrets
 
-secrets = {}
-secrets['password'] = new_password
-secrets['hash'] = new_hash
+def main():
+    new_password = __generatePassword()
+    new_hash = __generateHashWithSalt(new_password)
+    new_secrets = __serializeSecrets(new_password,new_hash)
+    print(new_secrets)
 
-data = json.dumps(secrets)
-
-print(data)
+main()
