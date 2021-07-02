@@ -21,7 +21,7 @@ def __generatePassword():
     password = password.rstrip()
     return password
 
-def __generateHashWithSalt(password):
+def __generateSaltedHash(password):
     salted_hash = crypt.crypt(password, crypt.mksalt(crypt.METHOD_SHA512))
     return salted_hash
 
@@ -34,7 +34,7 @@ def __serializeSecretsAsJSON(password, salted_hash):
 
 def main():
     password = __generatePassword()
-    salted_hash = __generateHashWithSalt(password)
+    salted_hash = __generateSaltedHash(password)
     secrets = __serializeSecretsAsJSON(password,salted_hash)
     print(secrets)
 
